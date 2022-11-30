@@ -1,0 +1,21 @@
+Foremost version 1.5.7 by Jesse Kornblum, Kris Kendall, and Nick Mikus
+Audit File
+
+Foremost started at Wed Nov 30 08:30:31 2022
+Invocation: foremost tunn3l_v1s10n 
+Output directory: /mnt/c/Users/rudycandy/Documents/vscode/ctf/picoCTF/tunn3lv1s10n/output
+Configuration file: /etc/foremost.conf
+------------------------------------------------------------------
+File: tunn3l_v1s10n
+Start: Wed Nov 30 08:30:31 2022
+Length: 2 MB (2893454 bytes)
+ 
+Num	 Name (bs=512)	       Size	 File Offset	 Comment 
+
+Finish: Wed Nov 30 08:30:31 2022
+
+0 FILES EXTRACTED
+	
+------------------------------------------------------------------
+
+Foremost finished at Wed Nov 30 08:30:31 2022
