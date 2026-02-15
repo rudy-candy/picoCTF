@@ -1,0 +1,20 @@
+インスタンスを起動するとwebページへ飛ぶ。サイトはログインページとなっていることが分かる。
+開発者ツールから、ページのソースコードを確認してみると、以下のようにコメントアウトされている文字列がある。
+<!-- ABGR: Wnpx - grzcbenel olcnff: hfr urnqre "K-Qri-Npprff: lrf" -->
+このエンコードされた文字はすべて文字で書かれており数字などはないことからrot13などのシーザー暗号でエンコードされている文字列と分かる
+pythonでデコードをする
+
+import codecs
+cipher = '<!-- ABGR: Wnpx - grzcbenel olcnff: hfr urnqre "K-Qri-Npprff: lrf" -->'
+decoded = codecs.decode(cipher, 'rot_13')
+print(decoded)
+
+$ python3 decode.py 
+<!-- NOTE: Jack - temporary bypass: use header "X-Dev-Access: yes" -->
+
+X-Dev-Access: yesをリクエストヘッダに付与すればバイパス可能だそう
+BurpSuiteでX-Dev-Access: yes ヘッダーを付与するため、ログインフォームリクエスト時にインターセプトします
+
+レスポンスがかえりフラグが現れる
+
+picoCTF{brut4_f0rc4_83812a02}

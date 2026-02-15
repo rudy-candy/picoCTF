@@ -1,0 +1,41 @@
+ファイルをダウンロードするとconfidentialという名前のpdfファイルがダウンロードされる
+ファイルを確認すると文章に所々黒塗りされている箇所があり、黒塗りされていない読める文章からは手掛かりは見つからない
+ファイルを確認する
+$ file confidential.pdf
+confidential.pdf: PDF document, version 1.7, 1 page(s)
+次にpdfファイルのメタデータを調べるためにpdfinfoを使用する
+$ pdfinfo confidential.pdf
+Author:          cGljb0NURntwdXp6bDNkX20zdGFkYXRhX2YwdW5kIV9lZTQ1NDk1MH0=
+Producer:        PyPDF2
+Custom Metadata: no
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           1
+Encrypted:       no
+Page size:       612 x 792 pts (letter)
+Page rot:        0
+File size:       182705 bytes
+Optimized:       no
+PDF version:     1.7
+
+ファイル情報にBase64の末尾に現れる「=」や「==」は、パディング（padding） と呼ばれるものです。Base64の末尾に現れます。Base64の文字があることが分かる。
+Author欄にbase64のコードが書かれていることが分かる
+
+PythonでBase64をデコードするスクリプトを記述します。
+
+import base64
+cipher = "cGljb0NURntwdXp6bDNkX20zdGFkYXRhX2YwdW5kIV9lZTQ1NDk1MH0="
+plain = base64.b64decode(cipher).decode()
+print(plain)
+
+実行すると
+
+$ python3 decode.py 
+picoCTF{puzzl3d_m3tadata_f0und!_ee454950}
+
+フラグ
+picoCTF{puzzl3d_m3tadata_f0und!_ee454950}

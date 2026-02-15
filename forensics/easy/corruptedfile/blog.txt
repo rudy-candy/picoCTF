@@ -1,0 +1,46 @@
+hereからファイルをダウンロードする
+"file"というファイル(w)がダウンロードされるのでfileコマンドでどのような形式化確認する
+
+$ file file
+file: data
+
+dataとしか情報が得られないのでcatコマンドでファイルの内容を出力してみる
+
+$ cat file
+\x��JFIF��C
+
+
+
+
+
+␦␦ $.' ",#(7),01444'9=82<.342��C
+
+どうもファイルの内容はバイナリであることが分かるので次はstringsコマンドで調べてみる
+
+$ strings file
+JFIF
+
+どうもファイルの識別子がJFIFということが分かった
+JFIFファイルとは「JPEG File Interchange Format」の略で、JPEG圧縮された画像データを保存するためのフォーマットである
+拡張子に.jfifを付与して画像データが見れるかためす
+
+$ cp file test.jfif
+
+これでjfifファイルとして認識するtestというファイルが作成されるが画像としてみることはできない
+それも先ほどのfileコマンドでjfifファイルと認識していなく、セグメントというファイル構造が正しくないのが原因と推測できる。
+hexdumpコマンドでバイナリファイルを調べる
+
+$ hexdump -C -n 8 test.jfif
+00000000  5c 78 ff e0 00 10 4a 46                           |\x....JF|
+00000008
+
+jfifデータのマジックナンバーを調べると\xff\xd8であることが分かる(https://en.wikipedia.org/wiki/JPEG)ので\x5c \x78は間違った値であることが分かるのでこれを変更する詳しくはSOI (Start of Image)の部分
+要するに
+5c 78 ff e0　ここの部分を
+ff d8 ff e0　と変更する
+
+$ hexedit test.jfif
+
+で方向キーで指定の5c 78の箇所をff d8と変更しctrl + x で保存する
+ファイルを開くとフラグが書かれている
+フラグpicoCTF{r3st0r1ng_th3_by73s_b67c1558}

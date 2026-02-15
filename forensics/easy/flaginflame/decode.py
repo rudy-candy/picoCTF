@@ -1,0 +1,3 @@
+hex_string = "7069636F4354467B666F72656E736963735F616E616C797369735F69735F616D617A696E675F61633165333538347D"
+decoded_text = bytes.fromhex(hex_string).decode('utf-8')
+print(decoded_text)

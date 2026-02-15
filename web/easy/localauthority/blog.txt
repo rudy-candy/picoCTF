@@ -1,0 +1,43 @@
+インスタンスを起動しwebサイトへ遷移する
+その際にbupsuiteで開くとHTTPの通信内容が分かる
+Target->Sit emapからwebsiteのリンクを開き
+proxy->HTTP Historyから通信履歴が分かる
+サイトはログイン画面となっており、試しに適当な文字をIDとパスワードを入力しログインを試みるが失敗と表示される
+この時通信にはGETリクエストが送られ、レスポンスには
+
+HTTP/1.1 200 OK
+Server: nginx
+Date: Tue, 21 Oct 2025 11:32:21 GMT
+Content-Type: application/javascript
+Content-Length: 177
+Last-Modified: Wed, 07 Feb 2024 17:25:25 GMT
+Connection: keep-alive
+ETag: "65c3bd05-b1"
+Expires: Sun, 26 Oct 2025 11:32:21 GMT
+Cache-Control: max-age=432000
+Accept-Ranges: bytes
+
+
+
+
+function checkPassword(username, password)
+{
+  if( username === 'admin' && password === 'strongPassword098765' )
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+このような分が書かれており、ログイン情報が書かれている
+この情報で再度ログインを試みる
+
+username === 'admin'
+password === 'strongPassword098765'
+
+ログインが成功しフラグが現れる
+
+picoCTF{j5_15_7r4n5p4r3n7_05df90c8}

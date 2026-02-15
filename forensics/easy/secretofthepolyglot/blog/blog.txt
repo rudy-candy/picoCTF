@@ -1,0 +1,19 @@
+ダウンロードしたpdfファイルの中にフラグの一部分がみられる
+
+1n_pn9_&_pdf_90974127}
+
+問題文を読み取るに他のファイル形式でも表示することができると推測される
+fileコマンドでファイル形式を調べる
+
+$ file flag2of2-final.pdf
+flag2of2-final.pdf: PNG image data, 50 x 50, 8-bit/color RGBA, non-interlaced
+
+PNGイメージと出力されたので拡張子を.pngとして変換する
+
+$ cp flag2of2-final.pdf flag2of2-final.png
+
+pngファイルからフラグの一部分がみられ、先ほどのpdfと合わせるとこの問題のフラグとなる
+
+フラグ
+
+picoCTF{f1u3n7_1n_pn9_&_pdf_90974127}

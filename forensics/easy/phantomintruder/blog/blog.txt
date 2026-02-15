@@ -1,0 +1,45 @@
+ダウンロードしたファイルはpcapという識別子でネットワーク通信の内容を記録したパケットキャプチャファイルとなっている
+
+Wiresharkで開く
+
+ファイル情報にBase64の末尾に現れる「=」や「==」は、パディング（padding） と呼ばれるものです。Base64の末尾に現れます。Base64の文字があることが分かる。
+情報数が多いので、length=48byte以外を見る
+
+31.28.5788 bnRfdGg0dA==
+31.28.5796 NjZkMGJmYg==
+31.28.5786 ezF0X3c0cw==
+31.28.5791 XzM0c3lfdA==
+31.28.5784 cGljb0NURg==
+31.28.5794 YmhfNHJfOQ==
+31.28.5798 fQ==
+
+これを時間で並び替える
+
+31.28.5784 cGljb0NURg==
+31.28.5786 ezF0X3c0cw==
+31.28.5788 bnRfdGg0dA==
+31.28.5791 XzM0c3lfdA==
+31.28.5794 YmhfNHJfOQ==
+31.28.5796 NjZkMGJmYg==
+31.28.5798 fQ==
+
+この文字について
+
+pythonでBase64をデコードするスクリプトを記述します。
+
+import base64
+cipher = ["cGljb0NURg==","ezF0X3c0cw==","bnRfdGg0dA==","XzM0c3lfdA==","YmhfNHJfOQ==","NjZkMGJmYg==","fQ=="]
+plain = ""
+for c in cipher:
+    decord = base64.b64decode(c).decode()
+    plain += decord
+print(plain)
+
+実行すると
+
+$ python3 decode.py 
+picoCTF{1t_w4snt_th4t_34sy_tbh_4r_966d0bfb}
+
+フラグ
+
+picoCTF{1t_w4snt_th4t_34sy_tbh_4r_966d0bfb}

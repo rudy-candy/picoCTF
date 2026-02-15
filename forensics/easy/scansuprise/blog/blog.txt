@@ -1,0 +1,17 @@
+ダウンロードしたzipファイルを解凍すると.pngファイルが出てくる
+
+$ unzip challenge.zip 
+Archive:  challenge.zip
+   creating: home/ctf-player/drop-in/
+ extracting: home/ctf-player/drop-in/flag.png
+
+ flag.pngを見るとQRコードということが分かる
+pngファイルのあるディレクトリに移動し、zbarimgコマンドQRコードやバーコードを画像から読み取るためのツールを使用する
+
+$ zbarimg flag.png 
+QR-Code:picoCTF{p33k_@_b00_3f7cf1ae}
+scanned 1 barcode symbols from 1 images in 0 seconds
+
+フラグ
+
+picoCTF{p33k_@_b00_3f7cf1ae}

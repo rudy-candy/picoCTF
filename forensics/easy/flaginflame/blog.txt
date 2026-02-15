@@ -1,0 +1,24 @@
+ファイルをダウンロードするとlogs.txtというtxtファイルが得られる
+ファイルを確認する
+$ file logs.txt
+logs.txt: ASCII text, with very long lines (65536), with no line terminators
+一行の長い文が記載されている
+文はbase64でエンコードされていることが分かる
+Base64でエンコードされたデータをデコードしてファイルに書き込む
+$ cat logs.txt | base64 -d >> log.dat
+書き込んだデータが何か再度ファイルを確認する
+$ file log.dat 
+log.dat: PNG image data, 896 x 1152, 8-bit/color RGB, non-interlaced
+pngデータと分かったのでファイルの識別子を変更する
+$ cp log.dat log.png
+pngファイルを確認すると画像の中に文が羅列してある
+7069636F4354467B666F72656E736963735F616E616C797369735F69735F616D617A696E675F61633165333538347D
+これはhexの文字列であるのでpythonでデコードする
+hex_string = "7069636F4354467B666F72656E736963735F616E616C797369735F69735F616D617A696E675F61633165333538347D"
+decoded_text = bytes.fromhex(hex_string).decode('utf-8')
+print(decoded_text)
+これを実行すると
+$ python3 decode.py 
+picoCTF{forensics_analysis_is_amazing_ac1e3584}
+フラグ
+picoCTF{forensics_analysis_is_amazing_ac1e3584}

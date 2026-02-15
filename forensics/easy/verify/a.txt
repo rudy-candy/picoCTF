@@ -1,0 +1,12 @@
+ctf-player@pico-chall$ sha256sum files/* | grep "3ad"
+807309a496177fd97eae436d0158e21cc5f15ee43adc6a0275015e8785c7e4e1  files/3PmKbHhH
+1cab1cc63f4d3a7c8b49a04288a89dd2b4816ab7fa73173db013ad624a5e0c47  files/49qfB01x
+125e6103e1930c8286453d9d7e838d9b3e0fa583bc23ade55679b5f27e3df1f3  files/BkMRgk48
+112a82c06cb2a4ecc7bda0777c1d0fc3ad27a96ec8ba156209d7fdf805da83d5  files/PUt9VRoX
+8493b7d798eea027966f17687afffe3272bccdf898ef181a43ad7cf09c448e81  files/b47rxTge
+973396c4c421e34b1dab9bd85173577e8e14ed9f4450ca88ae04573ad0780d24  files/dVJ9IeAT
+3ad37ed6c5ab81d31e4c94ae611e0adf2e9e3e6bee55804ebc7f386283e366a4  files/e018b574
+d77823df18c19f85988b023cb62bea63ade2cbda854df07684d2d03644bfbc67  files/ruWv5GEU
+ctf-player@pico-chall$ ./decrypt.sh files/e018b574 
+picoCTF{trust_but_verify_e018b574}
+ctf-player@pico-chall$

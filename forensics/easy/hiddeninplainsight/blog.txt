@@ -1,0 +1,42 @@
+ファイルをダウンロードするとimg.jpgというjpgファイルが得られる
+ファイルを確認する
+$ file img.jpg
+img.jpg: JPEG image data, JFIF standard 1.01, aspect ratio, density 1x1, segment length 16, comment: "c3RlZ2hpZGU6Y0VGNmVuZHZjbVE9", baseline, precision 8, 640x640, components 3
+comment にc3RlZ2hpZGU6Y0VGNmVuZHZjbVE9という文字が現れbase64でエンコードされた文字がみるかる
+この文字をデコードする
+import base64
+cipher = "c3RlZ2hpZGU6Y0VGNmVuZHZjbVE9"
+plain = base64.b64decode(cipher).decode()
+print(plain)
+実行すると
+$ python3 decode.py 
+steghide:cEF6endvcmQ=
+またbase64でエンコードされた文字がみるかる
+こちらを再度デコードする
+import base64
+cipher = "cEF6endvcmQ="
+plain = base64.b64decode(cipher).decode()
+print(plain)
+実行すると
+$ python3 decode.py 
+pAzzword
+こちらを先ほど出力されたsteghideで実行し隠しデータが埋め込まれているかを調べる
+$ steghide info img.jpg
+"img.jpg":
+  format: jpeg
+  capacity: 4.0 KB
+Try to get information about embedded data ? (y/n) y
+Enter passphrase:
+  embedded file "flag.txt":
+    size: 34.0 Byte
+    encrypted: rijndael-128, cbc
+    compressed: yes
+ここでEnter passphrase:と聞かれるので先ほどの文字pAzzwordを入力するとflag.txtという隠しデータがあることが分かる
+隠しデータを取り出すのにこちらのコマンドを使用する
+$ steghide extract -sf img.jpg
+Enter passphrase: 
+wrote extracted data to "flag.txt".
+ここで再度先ほどの文字pAzzwordを入力するとflag.txtというファイルが取り出すことができる
+このファイルにフラグが書かれている
+フラグ
+picoCTF{h1dd3n_1n_1m4g3_67479645}

@@ -1,0 +1,52 @@
+ダウンロードしたzipファイルを解凍すると.jpgファイルが出てくる
+
+$ unzip unknown.zip 
+Archive:  unknown.zip
+  inflating: ukn_reality.jpg
+
+画像には情報は特にないためメタデータを解析するためexiftoolを使用する
+
+$ exiftool ukn_reality.jpg 
+ExifTool Version Number         : 13.25
+File Name                       : ukn_reality.jpg
+Directory                       : .
+File Size                       : 2.3 MB
+File Modification Date/Time     : 2024:03:12 09:05:53+09:00
+File Access Date/Time           : 2025:10:21 15:50:57+09:00
+File Inode Change Date/Time     : 2025:10:21 15:50:09+09:00
+File Permissions                : -rw-r--r--
+File Type                       : JPEG
+File Type Extension             : jpg
+MIME Type                       : image/jpeg
+JFIF Version                    : 1.01
+Resolution Unit                 : inches
+X Resolution                    : 72
+Y Resolution                    : 72
+XMP Toolkit                     : Image::ExifTool 11.88
+Attribution URL                 : cGljb0NURntNRTc0RDQ3QV9ISUREM05fYjMyMDQwYjh9Cg==
+Image Width                     : 4308
+Image Height                    : 2875
+Encoding Process                : Baseline DCT, Huffman coding
+Bits Per Sample                 : 8
+Color Components                : 3
+Y Cb Cr Sub Sampling            : YCbCr4:2:0 (2 2)
+Image Size                      : 4308x2875
+Megapixels                      : 12.4
+
+この情報から"Attribution URL                 : cGljb0NURntNRTc0RDQ3QV9ISUREM05fYjMyMDQwYjh9Cg=="という文字列が分かります
+ファイル情報のBase64の末尾に現れる「=」や「==」は、パディング（padding） と呼ばれるものです。Base64の末尾に現れ、Base64の文字であることが分かる。
+
+PythonでBase64をデコードするスクリプトを記述します。
+
+import base64
+cipher = "cGljb0NURntNRTc0RDQ3QV9ISUREM05fYjMyMDQwYjh9Cg=="
+plain = base64.b64decode(cipher).decode()
+print(plain)
+
+実行すると
+
+$ python3 decode.py 
+picoCTF{ME74D47A_HIDD3N_b32040b8}
+
+フラグ
+picoCTF{ME74D47A_HIDD3N_b32040b8}
