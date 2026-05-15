@@ -1,0 +1,281 @@
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>The first thing I did with <code>img.jpg</code> in <strong>picoCTF Hidden in Plainsight</strong> was open it. Just looked at it. A perfectly ordinary 640x640 image — no visible text, no obvious anomalies. I spent a few minutes staring before admitting visual inspection wasn't going to help. This is a steganography challenge where the passphrase was technically visible from the very first command — I just wasn't reading carefully enough.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Challenge Overview</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The challenge provides a single file: <code>img.jpg</code>. No hints beyond the title "Hidden in Plainsight." The name suggests the hidden data is somewhere obvious — but obvious to whom?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>My first assumption: steganography in the pixel data. My plan: run <code>steghide extract</code> with a blank passphrase, since a lot of Easy-tier stego problems don't bother with passwords.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="generic">$ steghide extract -sf img.jpg
+Enter passphrase:
+steghide: could not extract any data with that passphrase!</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:paragraph -->
+<p>No luck. I tried "password," "picoctf," "flag" — all the obvious guesses. Nothing. Then I ran <code>binwalk</code>, expecting to find an embedded file signature.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="generic">$ binwalk img.jpg
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+0             0x0             JPEG image data, JFIF standard 1.01</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:paragraph -->
+<p>Nothing useful. Just the JPEG header. I was about 15 minutes in and stuck.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Step 1: Reading the file Command Output Properly</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>I almost didn't run <code>file</code> — I assumed I already knew what the file was. But out of habit, I ran it anyway:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="generic">$ file img.jpg
+img.jpg: JPEG image data, JFIF standard 1.01, aspect ratio, density 1x1, segment length 16, comment: "c3RlZ2hpZGU6Y0VGNmVuZHZjbVE9", baseline, precision 8, 640x640, components 3</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:paragraph -->
+<p>I nearly scrolled past it. The output is long and dense, and I was skimming. Then the word <code>comment</code> caught my eye: <code>"c3RlZ2hpZGU6Y0VGNmVuZHZjbVE9"</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>JPEG files have a comment field in their header — a metadata field that most people never think about. That string looked like base64. The challenge title suddenly made sense: hidden in plain sight, inside the file metadata.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Step 2: Decoding the Comment — Twice</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>I decoded the comment field:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="python">import base64
+cipher = "c3RlZ2hpZGU6Y0VGNmVuZHZjbVE9"
+plain = base64.b64decode(cipher).decode()
+print(plain)</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="generic">$ python3 decode.py
+steghide:cEF6endvcmQ=</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:paragraph -->
+<p>The output split at a colon: <code>steghide</code> on the left, and another base64 string on the right. The challenge was literally naming the tool and handing me an encoded passphrase. I decoded the right side:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="python">import base64
+cipher = "cEF6endvcmQ="
+plain = base64.b64decode(cipher).decode()
+print(plain)</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="generic">$ python3 decode.py
+pAzzword</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:paragraph -->
+<p>Double base64. The passphrase was <code>pAzzword</code> — deliberately written to look like "password" but different enough to not be guessable. This is why the brute-force approach earlier failed.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Step 3: Confirming the Embedded Data</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Before extracting, I ran <code>steghide info</code> to confirm something was actually there — I've wasted time extracting from files with no embedded data before:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="generic">$ steghide info img.jpg
+"img.jpg":
+  format: jpeg
+  capacity: 4.0 KB
+Try to get information about embedded data ? (y/n) y
+Enter passphrase:
+  embedded file "flag.txt":
+    size: 34.0 Byte
+    encrypted: rijndael-128, cbc
+    compressed: yes</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:paragraph -->
+<p>There it was — <code>flag.txt</code>, 34 bytes, AES-128 encrypted. The passphrase had unlocked the metadata. Now extraction:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="generic">$ steghide extract -sf img.jpg
+Enter passphrase:
+wrote extracted data to "flag.txt".</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Capture the Flag</h2>
+<!-- /wp:heading -->
+
+<!-- wp:enlighter/codeblock -->
+<pre class="EnlighterJSRAW" data-enlighter-language="generic">picoCTF{h1dd3n_1n_1m4g3_67479645}</pre>
+<!-- /wp:enlighter/codeblock -->
+
+<!-- wp:paragraph -->
+<p>The flag format confirmed everything. The "image" in <code>h1dd3n_1n_1m4g3</code> was the hint the problem had been giving all along.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Full Trial Process</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table -->
+<figure class="wp-block-table"><table class="has-fixed-layout"><thead><tr><th>Step</th><th>Action</th><th>Command</th><th>Result</th><th>Why it failed / succeeded</th></tr></thead><tbody><tr><td>1</td><td>Visual inspection</td><td>—</td><td>Nothing visible</td><td>Steghide hides data in DCT coefficients, invisible to the eye</td></tr><tr><td>2</td><td>Blank passphrase attempt</td><td><code>steghide extract -sf img.jpg</code></td><td>Failed</td><td>Passphrase was not blank</td></tr><tr><td>3</td><td>Signature scan</td><td><code>binwalk img.jpg</code></td><td>Only JPEG header</td><td>Steghide doesn't append files — it modifies DCT coefficients</td></tr><tr><td>4</td><td>File metadata check</td><td><code>file img.jpg</code></td><td>Base64 string in comment field</td><td>The clue was in the JPEG comment all along</td></tr><tr><td>5</td><td>First base64 decode</td><td>Python script</td><td><code>steghide:cEF6endvcmQ=</code></td><td>Revealed tool name and encoded passphrase</td></tr><tr><td>6</td><td>Second base64 decode</td><td>Python script</td><td><code>pAzzword</code></td><td>Double-encoded to prevent simple guessing</td></tr><tr><td>7</td><td>Confirm embedded data</td><td><code>steghide info img.jpg</code></td><td>flag.txt confirmed</td><td>Passphrase correct</td></tr><tr><td>8</td><td>Extract</td><td><code>steghide extract -sf img.jpg</code></td><td>flag.txt extracted</td><td>Success</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Commands Used</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">file</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Reads a file's magic bytes and metadata to identify its format. For JPEGs, it parses the JFIF header and prints fields including the comment segment. Most people run <code>file</code> just to confirm a file type — but the comment field is worth reading carefully in CTF contexts.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">base64 (Python)</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Base64 is an encoding scheme that converts binary data into ASCII text using 64 printable characters. It's recognizable by its character set (A-Z, a-z, 0-9, +, /) and the <code>=</code> padding at the end. In CTF, any string that looks like base64 is worth decoding immediately.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">steghide info</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Queries a JPEG or WAV file for embedded steganographic data without extracting it. Useful for confirming you have the right passphrase before committing to extraction. If the passphrase is wrong, it returns an error rather than a confirmation — so a successful <code>info</code> response is meaningful.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">steghide extract</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Extracts embedded data from a carrier file. The <code>-sf</code> flag specifies the stego file. The extracted file is saved to the current directory with its original embedded filename.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Beginner Tips</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><strong>Read file output completely.</strong> The <code>file</code> command produces dense output and it's easy to skim the important parts. Force yourself to read every field, especially <code>comment</code>, <code>OEM-ID</code>, and any strings that don't look like standard metadata.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Recognize base64 on sight.</strong> Base64 strings end in <code>=</code> or <code>==</code>, consist of alphanumeric characters plus <code>+</code> and <code>/</code>, and are usually multiples of 4 characters. When you see one in a CTF context, decode it. Then decode the result if it looks encoded again.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Use steghide info before extract.</strong> It's a faster way to test a passphrase without writing a file to disk. Especially useful when you're testing multiple candidates.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>binwalk failing doesn't mean steghide will fail.</strong> These tools detect different things. Binwalk looks for file signatures appended to the carrier. Steghide modifies the carrier's DCT coefficients. They can both be relevant to the same file, or only one of them.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">What You Learn</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The biggest lesson from Hidden in Plainsight isn't about steghide — it's about <strong>where to look for passphrases</strong>. The passphrase was never hidden in a difficult place. It was in the file's own comment field, double-encoded in base64. The challenge was about noticing something that was technically visible from the first command.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In real-world forensics, JPEG comment fields are used by camera firmware, image editors, and — as this challenge demonstrates — can be abused to carry arbitrary data. An analyst who skims <code>file</code> output will miss this. An analyst who reads it will not.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Next time I encounter a steganography challenge with an unknown passphrase, my first move is metadata — <code>file</code>, <code>exiftool</code>, and <code>strings</code> — before trying any extraction tool. The passphrase is usually closer than it looks.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Further Reading</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>This challenge uses steghide as its extraction tool. For a full breakdown of steghide's workflow — including when to use it, when to switch to Stegseek, and how it differs from binwalk — see <strong><a href="https://alsavaudomila.com/steghide-in-ctf-how-to-hide-and-extract-data-from-files/" target="_blank" rel="noreferrer noopener">steghide in CTF: Extract Flags</a></strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The metadata discovery technique used here — reading <code>file</code> output carefully — applies to PNG files too. <strong><a href="https://alsavaudomila.com/pngcheck-in-ctf-how-to-analyze-and-repair-png-files/" target="_blank" rel="noreferrer noopener">pngcheck in CTF</a></strong> covers how to extract and analyze PNG chunk data using a similar approach.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>For a broader overview of forensics tools and when to use each one, the <strong><a href="https://alsavaudomila.com/ctf-forensics-tools/" target="_blank" rel="noreferrer noopener">CTF Forensics Tools guide</a></strong> covers the full toolkit from initial file identification through extraction.</p>
+<!-- /wp:paragraph -->
